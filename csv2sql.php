@@ -23,7 +23,7 @@
 
 
 <?php
-  $directorio = opendir("/home/fcabanasm/Escritorio/dev/PHP_SERVER/csv/");
+  $directorio = opendir("/home/statdata/php_server/csv/");
   while ($archivo = readdir($directorio)) {
     if ($archivo != "." && $archivo != "..") {
           echo "<tr><td><a style='font-size: 20px;' href='/csv/$archivo' target='_blank'>".$archivo."</a></td>";
