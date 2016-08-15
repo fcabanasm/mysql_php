@@ -8,17 +8,54 @@
 <div class="container">
   <div class="row">
     <h1> SCRIPT CSV a Mysql </h1>
-    <p> This Php Script Will Import very large CSV files to MYSQL database in a minute</p>
+    <p> PHP para importar archivos CSV a MySql</p>
     <img src="BD.png" alt="" />
     </br>
+    <div class="col-md-12" style="margin-top:2em">
+      <table class='table table-hover table-bordered'>
+        <thead>
+          <tr>
+            <th>Nombre del archivo: </th>
+            <th>Columnas</th>
+          </tr>
+        </thead>
+        <tbody>
+
+
+<?php
+  $directorio = opendir("/home/fcabanasm/Escritorio/dev/PHP_SERVER/csv/");
+  while ($archivo = readdir($directorio)) {
+    if ($archivo != "." && $archivo != "..") {
+          echo "<tr><td><a style='font-size: 20px;' href='/csv/$archivo' target='_blank'>".$archivo."</a></td>";
+
+            $file = new SplFileObject("csv/".$archivo);
+            echo "<td>".$file->fgets()."</td>";
+            $file = null;
+
+          echo "</tr>";
+}
+      }
+?>
+    </tbody>
+    </table>
+    </div>
     <form class="form-horizontal"action="csv2sql.php" method="post">
       <div class="form-group">
             <label for="table" class="control-label ">Columnas</label>
         <div class="">
-            <input type="text" class="form-control" name="cols" id="cols" value="@,@,nombres,rut,verificador,@,@,nacionalidad,nacimiento,sexo,civil,direccion,telf1,email,nivel_estudio,estudios,titulo">
+            <input type="text" class="form-control" name="cols" id="cols" value="@,@,nombres,rut,rut_verificador,@,@,nacionalidad,fecha_nacimiento,sexo,civil,direccion,telf1,email,lvl_estudio,estudios,titulo">
         </div>
         @ para ignorar columna
       </div>
+      <div class="form-group">
+            <label for="csvfile" class="control-label ">Nombre del archivo</label>
+        <div class="">
+            <input type="name" class="form-control" name="csv" id="csv" value="test.csv">
+        </div>
+        eg. MYDATA.csv
+        </div>
+      <div class="col-md-12">
+        <div class="col-md-6">
       <div class="form-group">
             <label for="table" class="control-label ">Header</label>
         <div class="">
@@ -26,55 +63,58 @@
           <input type="radio" name="header" id="header" value="no"> No<br>
         </div>
       </div>
+      </div>
+      <div class="col-md-6">
+      <div class="form-group">
+            <label for="table" class="control-label ">Separador</label>
+        <div class="">
+          <input type="radio" name="separador" id="separador" value="," checked="true"> , (coma)<br>
+          <input type="radio" name="separador" id="separador" value=";"> ; (punto y coma)<br>
+        </div>
+      </div>
+      </div>
+      </div>
       <div class="col-md-6">
         <div class="form-group">
-            <label for="mysql" class="control-label ">Host name</label>
+            <label for="mysql" class="control-label ">Host</label>
     		<div class="">
             <input type="text" class="form-control" name="mysql" id="mysql" placeholder="" value="localhost">
     		</div>
         </div>
     	<div class="form-group">
-            <label for="username" class="control-label ">Username</label>
+            <label for="username" class="control-label ">Usuario</label>
     		<div class="">
             <input type="text" class="form-control" name="username" id="username" placeholder="" value="root">
     		</div>
         </div>
     	<div class="form-group">
-            <label for="password" class="control-label ">Password</label>
+            <label for="password" class="control-label ">Contraseña</label>
     		<div class="">
-            <input type="password" class="form-control" name="password" id="password" placeholder="" value="597153">
+            <input type="password" class="form-control" name="password" id="password" placeholder="" value="europa1935">
     		</div>
         </div>
       </div>
       <div class="col-md-6">
         <div class="form-group">
-              <label for="db" class="control-label ">Database name</label>
+              <label for="db" class="control-label ">Base de datos</label>
       		<div class="">
               <input type="text" class="form-control" name="db" id="db" placeholder="" value="big_data">
       		</div>
           </div>
       	<div class="form-group">
-              <label for="table" class="control-label ">table name</label>
+              <label for="table" class="control-label ">Tabla</label>
       		<div class="">
-              <input type="name" class="form-control" name="table" id="table" value="data_table">
+              <input type="name" class="form-control" name="table" id="table" value="personas">
       		</div>
           </div>
-      	<div class="form-group">
-              <label for="csvfile" class="control-label ">Name of the file</label>
-      		<div class="">
-              <input type="name" class="form-control" name="csv" id="csv" value="test.csv">
-      		</div>
-      		eg. MYDATA.csv
-          </div>
+
       	<div class="form-group">
       	<label for="login" class="control-label "></label>
           <div class="">
-          <button type="submit" class="btn btn-primary">Upload</button>
+          <button type="submit" class="btn btn-primary">Subir</button>
       	</div>
       	</div>
       </div>
-
-
     </form>
     </div>
   </div>
@@ -111,14 +151,15 @@ $count1=(int)$r1['count'];
 // for more information about the query http://dev.mysql.com/doc/refman/5.1/en/load-data.html
 $cols=$_POST['cols'];
 $header=$_POST['header'];
+$separador=$_POST['separador'];
 #$cols = preg_split("/[;,]+/", $cols);
 $cols = preg_replace('/\s+/', '', $cols);
 $head = '('.$cols.')';
 $head = str_ireplace("@","@q",$head);
 
-$sql2 = "LOAD DATA LOCAL INFILE '".$file. "'
+$sql2 = "LOAD DATA LOCAL INFILE 'csv/".$file. "'
       INTO TABLE `".$table."`
-      FIELDS TERMINATED by ','
+      FIELDS TERMINATED by '$separador'
       ENCLOSED BY '\"'".
       ($header == "si" ? '
         IGNORE 1 LINES': '')."
@@ -157,16 +198,4 @@ echo "Mysql Server address/Host name ,Username , Database name ,Table name , Fil
 }
 
 ?>
-<h3> Instructions </h3>
-1.  Keep this php file and Your csv file in one folder <br>
-2.  Create a table in your mysql database to which you want to import <br>
-3.  Open the php file from your localhost server <br>
-4.  Enter all the fields  <br>
-5.  click on upload button  </p>
-
-<h3> Facing Problems ? Some of the reasons can be the ones shown below </h3>
-1) Check if the table to which you want to import is created and the datatype of each column matches with the data in csv<br>
-2) If fields in your csv are not separated by commas go to Line 117 of php file and change the query<br>
-3) If each tuple in your csv are not one below other(i.e not seperated by a new line) got line 117 of php file and change the query<br>
-
 </html>
