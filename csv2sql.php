@@ -24,6 +24,7 @@
 
 <?php
   $directorio = opendir("/home/statdata/php_server/csv/");
+  #$directorio = opendir("/home/fcabanasm/Escritorio/dev/PHP_SERVER/csv/");
   while ($archivo = readdir($directorio)) {
     if ($archivo != "." && $archivo != "..") {
           echo "<tr><td><a style='font-size: 20px;' href='/csv/$archivo' target='_blank'>".$archivo."</a></td>";
@@ -43,7 +44,7 @@
       <div class="form-group">
             <label for="table" class="control-label ">Columnas</label>
         <div class="">
-            <input type="text" class="form-control" name="cols" id="cols" value="@,@,nombres,rut,rut_verificador,@,@,nacionalidad,fecha_nacimiento,sexo,civil,direccion,telf1,email,lvl_estudio,estudios,titulo">
+            <input type="text" class="form-control" name="cols" id="cols" value="@,@,nombres,rut,rut_verificador,@,@,nacionalidad,nacimiento,sexo,civil,direccion,telf1,email,lvl_estudio,estudios,titulo">
         </div>
         @ para ignorar columna
       </div>
@@ -152,20 +153,22 @@ $count1=(int)$r1['count'];
 $cols=$_POST['cols'];
 $header=$_POST['header'];
 $separador=$_POST['separador'];
-#$cols = preg_split("/[;,]+/", $cols);
+
 $cols = preg_replace('/\s+/', '', $cols);
+$cols = preg_replace('/[;]/', ',', $cols);
 $head = '('.$cols.')';
 $head = str_ireplace("@","@q",$head);
 
 $sql2 = "LOAD DATA LOCAL INFILE 'csv/".$file. "'
       INTO TABLE `".$table."`
+      CHARACTER SET UTF8
       FIELDS TERMINATED by '$separador'
       ENCLOSED BY '\"'".
       ($header == "si" ? '
         IGNORE 1 LINES': '')."
       ".$head."
 ";
-
+#rut;rut_verificador;nombres;a_paterno;a_materno;direccion;comuna;region;cod_telf;telf1;@;@;@;@;@
 #rut
 #apellido
 #comuna
