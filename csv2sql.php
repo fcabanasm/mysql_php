@@ -15,7 +15,7 @@
     </div>
     <div class="col-md-4">
       <?php
-      $cons= mysqli_connect("localhost", "root","597153","big_data") or die(mysql_error());
+      $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
       $showtables = "show tables";
       $showt = mysqli_query($cons,$showtables);
       if (!$showt) {
@@ -42,7 +42,7 @@
       if(isset($_GET['schema'])){
           $tabla = $_GET['schema'];
 
-          $cons= mysqli_connect("localhost", "root","597153","big_data") or die(mysql_error());
+          $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
           $showsql = "show columns from $tabla;";
           $show = mysqli_query($cons,$showsql);
           if (!$show) {
@@ -85,8 +85,8 @@
 <div class="col-md-12">
   <h4>Tabla de Directorio: <b>/home/statdata/php_server/csv/</b> </h4>
   <?php
-    #$directorio = opendir("/home/statdata/php_server/csv/");
-    $directorio = opendir("/home/fcabanasm/Escritorio/dev/php_server/csv/");
+    $directorio = opendir("/home/statdata/php_server/csv/");
+    #$directorio = opendir("/home/fcabanasm/Escritorio/dev/php_server/csv/");
     while ($archivo = readdir($directorio)) {
       if ($archivo != "." && $archivo != "..") {
             echo "<tr><td><a style='font-size: 20px;' href='/csv/$archivo' target='_blank'>".$archivo."</a></td>";
