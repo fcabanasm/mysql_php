@@ -61,7 +61,7 @@ $cons->close();
       }
       echo "<table class='table table-bordered'>
             <tr>
-              <th>Eliminar - Vaciar </th>
+              <th>Vaciar - Eliminar </th>
               <th>Tablas en big_data:</th>
             </tr>";
       while ($row = $showt->fetch_assoc()) {
