@@ -11,7 +11,7 @@ if(isset($_GET['eliminar'])){
 }
 if(isset($_GET['drop'])){
   $tabla = $_GET['drop'];
-  $cons= mysqli_connect("localhost", "root","597153","big_data") or die(mysql_error());
+  $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
   $dropSQL = "drop table $tabla;";
   $drop = mysqli_query($cons,$dropSQL);
   if (!$drop) {
@@ -24,7 +24,7 @@ $cons->close();
 }
 if(isset($_GET['truncate'])){
   $tabla = $_GET['truncate'];
-  $cons= mysqli_connect("localhost", "root","597153","big_data") or die(mysql_error());
+  $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
   $truncateSQL = "truncate $tabla;";
   $trunc = mysqli_query($cons,$truncateSQL);
   if (!$trunc) {
@@ -54,7 +54,7 @@ $cons->close();
     </div>
     <div class="col-md-4">
       <?php
-      $cons= mysqli_connect("localhost", "root","597153","big_data") or die(mysql_error());
+      $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
       $showtables = "show tables";
       $showt = mysqli_query($cons,$showtables);
       if (!$showt) {
@@ -87,7 +87,7 @@ $cons->close();
       <?php
       if(isset($_GET['schema'])){
           $tabla = $_GET['schema'];
-          $cons= mysqli_connect("localhost", "root","597153","big_data") or die(mysql_error());
+          $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
           $showsql = "show columns from $tabla;";
           $show = mysqli_query($cons,$showsql);
           if (!$show) {
@@ -234,7 +234,7 @@ $cons->close();
         <div class="form-group">
               <label for="password" class="control-label ">Contraseña</label>
       		<div class="">
-              <input type="password" class="form-control" name="password" id="password" placeholder="" value="597153" required="true">
+              <input type="password" class="form-control" name="password" id="password" placeholder="" value="europa1935" required="true">
       		</div>
           </div>
         <div class="form-group">
