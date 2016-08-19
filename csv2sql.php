@@ -9,6 +9,32 @@ if(isset($_GET['eliminar'])){
       echo "Ocurrio un error al borrar el archivo";
     }
 }
+if(isset($_GET['drop'])){
+  $tabla = $_GET['drop'];
+  $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
+  $dropSQL = "drop table $tabla;";
+  $drop = mysqli_query($cons,$dropSQL);
+  if (!$drop) {
+    die('Could not load data from file into table: ' .mysqli_error($cons));
+  }
+  else{
+    echo "La tabla fue borrada correctamente.";
+  }
+$cons->close();
+}
+if(isset($_GET['truncate'])){
+  $tabla = $_GET['truncate'];
+  $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
+  $truncateSQL = "truncate $tabla;";
+  $trunc = mysqli_query($cons,$truncateSQL);
+  if (!$trunc) {
+    die('Could not load data from file into table: ' .mysqli_error($cons));
+  }
+  else{
+    echo "Los registros de la tabla fueron correctamente eliminados.";
+  }
+$cons->close();
+}
 ?>
 <html>
 <head>
@@ -35,6 +61,7 @@ if(isset($_GET['eliminar'])){
       }
       echo "<table class='table table-bordered'>
             <tr>
+              <th>Eliminar - Vaciar </th>
               <th>Tablas en big_data:</th>
             </tr>";
       while ($row = $showt->fetch_assoc()) {
@@ -43,6 +70,11 @@ if(isset($_GET['eliminar'])){
             $count = $count->fetch_assoc();
             $count = $count['count(*)'];
             echo "<tr> <td>";
+            echo "<a class='btn btn-danger' href='".$_SERVER['PHP_SELF']."?truncate=".$tibd."'>E</a>";
+            echo " - ";
+            echo "<a class='btn btn-danger' href='".$_SERVER['PHP_SELF']."?drop=".$tibd."'>V</a>";
+            echo "</td>";
+            echo "<td>";
             echo "<a href='".$_SERVER['PHP_SELF']."?schema=".$tibd."'>$tibd ($count regs.)</a>";
             echo "</td> </tr>";
         }
@@ -78,7 +110,6 @@ if(isset($_GET['eliminar'])){
             }
       echo "</table>";
         }
-        $cons->close();
       ?>
     </div>
     </div>
@@ -87,9 +118,10 @@ if(isset($_GET['eliminar'])){
     <div class="col-md-12" style="margin-top:2em">
       <h4>Tabla de Directorio: <b>/home/statdata/php_server/csv/</b> </h4>
     <div class="table-responsive">
-    <table class="table">
+    <table class="table table-bordered table-hover">
       <thead>
         <tr>
+          <th>Eliminar</th>
           <th>Nombre del archivo: </th>
           <th>Columnas (primera linea del archivo)</th>
         </tr>
