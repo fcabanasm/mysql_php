@@ -1,3 +1,15 @@
+<?php
+if(isset($_GET['eliminar'])){
+    $directorio = realpath(dirname(getcwd()))."/php_server/csv/";
+    $archivo = $_GET['eliminar'];
+    if( unlink($directorio.'/'.$archivo)){
+        echo "Archivo borrado correctamente.";
+    }
+    else {
+      echo "Ocurrio un error al borrar el archivo";
+    }
+}
+?>
 <html>
 <head>
 <title>CSVaMySql</title>
@@ -35,13 +47,11 @@
         echo "</table>";
      ?>
     </div>
-
     <div class="col-md-8" id="schema">
       <h4>Schema:</h4>
       <?php
       if(isset($_GET['schema'])){
           $tabla = $_GET['schema'];
-
           $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
           $showsql = "show columns from $tabla;";
           $show = mysqli_query($cons,$showsql);
@@ -70,42 +80,80 @@
     </div>
 
     </br>
-    <div class="col-md-12">
-
-    </div>
     <div class="col-md-12" style="margin-top:2em">
-      <table class='table table-hover table-bordered'>
-        <thead>
-          <tr>
-            <th>Nombre del archivo: </th>
-            <th>Columnas (primera linea del archivo)</th>
-          </tr>
-        </thead>
-        <tbody>
-<div class="col-md-12">
-  <h4>Tabla de Directorio: <b>/home/statdata/php_server/csv/</b> </h4>
-  <?php
-    $directorio = opendir("/home/statdata/php_server/csv/");
-    #$directorio = opendir("/home/fcabanasm/Escritorio/dev/php_server/csv/");
-    while ($archivo = readdir($directorio)) {
-      if ($archivo != "." && $archivo != "..") {
-            echo "<tr><td><a style='font-size: 20px;' href='/csv/$archivo' target='_blank'>".$archivo."</a></td>";
+      <h4>Tabla de Directorio: <b>/home/statdata/php_server/csv/</b> </h4>
+    <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre del archivo: </th>
+          <th>Columnas (primera linea del archivo)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+          $dirpath = realpath(dirname(getcwd()))."/php_server/csv/";
+          $directorio = opendir($dirpath);
+          #$directorio = opendir("/home/statdata/php_server/csv/");
+          #$directorio = opendir("/home/fcabanasm/Escritorio/dev/php_server/csv/");
+          while ($archivo = readdir($directorio)) {
+            if ($archivo != "." && $archivo != "..") {
+              echo "<tr>";
+              echo "<td>";
+              echo "<a class='btn btn-danger' href='".$_SERVER['PHP_SELF']."?eliminar=".$archivo."'>X</a>";
+              echo "</td>";
+              echo "<td>";
+              echo "<a style='font-size: 20px;' href='/csv/$archivo' target='_blank'>".$archivo."</a>";
+              echo "</td>";
               $file = new SplFileObject("csv/".$archivo);
-              echo "<td>".$file->fgets()."</td>";
+              echo "<td>";
+              echo $file->fgets();
+              echo "</td>";
               $file = null;
-            echo "</tr>";
-  }
-        }
-  ?>
-</div>
-
-    </tbody>
+              echo "</tr>";
+            }
+          }
+        ?>
+      </tbody>
     </table>
+    </div>
+  </div>
+    <div class="col-md-12">
+      <?php
+   if(isset($_FILES['fichero'])){
+      $errors= array();
+      $file_name = $_FILES['fichero']['name'];
+      $file_size =$_FILES['fichero']['size'];
+      $file_tmp =$_FILES['fichero']['tmp_name'];
+      $file_type=$_FILES['fichero']['type'];
+      $dirpath = realpath(dirname(getcwd()))."/php_server/csv/";
+      $tmp = explode('.', $file_name);
+      $file_ext = end($tmp);
+      $file_ext=strtolower($file_ext);
+      $expensions= array("csv","CSV");
+      if(in_array($file_ext,$expensions)=== false){
+         $errors[]="Extensión no permitida, escoje un fichero CSV.";
+      }
+      if($file_size > 10485760){
+         $errors[]='El tamaño del archivo no puede superar los 10 MB';
+      }
+      if(empty($errors)==true){
+         move_uploaded_file($file_tmp,$dirpath.$file_name);
+         echo "¡Bien!, el archivo fue cargado con correctamente.";
+      }else{
+         print_r($errors);
+      }
+   }
+?>
+      <h4>Cargar Ficheros CSV</h4>
+      <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+         <input type="file" name="fichero" />
+         <input type="submit"/>
+      </form>
     </div>
     <div class="col-md-12" style="border: 1px dashed black">
       <h4>ATENCIÓN: Fijarse que las columnas esten creadas en la tabla y tengan el mismo nombre. <a href="#schema">(Ver Schema)</a> </h4>
-
-    <form class="form-horizontal"action="csv2sql.php" method="post">
+    <form class="form-horizontal" action="csv2sql.php" method="post">
       <div class="col-md-2">
         <div class="form-group">
               <label for="csvfile" class="control-label ">Nombre del archivo</label>
@@ -289,15 +337,18 @@ echo "Completar los campos obligatorios.";
 
 echo "<br><br><br><br>";
 ?>
-<h4>Para administrar MySql (tablas, columnas, etc.) se puede hacer con <a href="https://www.mysql.com/products/workbench/">MySql Workbench</a></h4>
-<h5>Instrucciones:</h5>
-<ul>
-  <li>0- Copiar fichero CSV (este no debe tener signos inválidos (como por ej: ?) ) al directorio.</li>
-  <li>1- Ver el Schema de la tabla, para comprobar sus columnas.</li>
-  <li>2- Copiar el nombre completo del archivo mostrado en la Tabla.</li>
-  <li>3- Copiar las columnas y determinar cuales quiero ignorar (lo que se escriba en ese campo no debe terminar en coma (,) ) </li>
-  <li>4- Verificar si tiene o no Headers, esto se puede comprobar en la tabla de arriba. Si muestra un registro, quiere decir que no tiene HEADER.</li>
-  <li>5- Verificar la separación, esto se puede comprobar en la tabla de arriba, depende de la separación de las columnas (puede ser coma o punto y coma)</li>
-  <li>4- Escribir Tabla (Si no existe, creara una tabla con las columnas escritas en el paso 3, de lo contrario agregara registros en la tabla existente).</li>
-</ul>
+<div class="col-md-12">
+  <h4>Para administrar MySql (tablas, columnas, etc.) se puede hacer con <a href="https://www.mysql.com/products/workbench/">MySql Workbench</a></h4>
+  <h5>Instrucciones:</h5>
+  <ul>
+    <li>0- Copiar fichero CSV (este no debe tener signos inválidos (como por ej: ?) ) al directorio.</li>
+    <li>1- Ver el Schema de la tabla, para comprobar sus columnas.</li>
+    <li>2- Copiar el nombre completo del archivo mostrado en la Tabla.</li>
+    <li>3- Copiar las columnas y determinar cuales quiero ignorar (lo que se escriba en ese campo no debe terminar en coma (,) ) </li>
+    <li>4- Verificar si tiene o no Headers, esto se puede comprobar en la tabla de arriba. Si muestra un registro, quiere decir que no tiene HEADER.</li>
+    <li>5- Verificar la separación, esto se puede comprobar en la tabla de arriba, depende de la separación de las columnas (puede ser coma o punto y coma)</li>
+    <li>4- Escribir Tabla (Si no existe, creara una tabla con las columnas escritas en el paso 3, de lo contrario agregara registros en la tabla existente).</li>
+  </ul>
+</div>
+
 </html>
