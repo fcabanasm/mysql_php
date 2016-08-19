@@ -27,7 +27,7 @@ if(isset($_GET['eliminar'])){
     </div>
     <div class="col-md-4">
       <?php
-      $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
+      $cons= mysqli_connect("localhost", "root","597153","big_data") or die(mysql_error());
       $showtables = "show tables";
       $showt = mysqli_query($cons,$showtables);
       if (!$showt) {
@@ -38,27 +38,30 @@ if(isset($_GET['eliminar'])){
               <th>Tablas en big_data:</th>
             </tr>";
       while ($row = $showt->fetch_assoc()) {
-
             $tibd = $row['Tables_in_big_data'];
+            $count = mysqli_query($cons, "select count(*) from $tibd;");
+            $count = $count->fetch_assoc();
+            $count = $count['count(*)'];
             echo "<tr> <td>";
-            echo "<a href='".$_SERVER['PHP_SELF']."?schema=".$tibd."'>$tibd</a>";
+            echo "<a href='".$_SERVER['PHP_SELF']."?schema=".$tibd."'>$tibd ($count regs.)</a>";
             echo "</td> </tr>";
         }
         echo "</table>";
+        $cons->close();
      ?>
     </div>
     <div class="col-md-8" id="schema">
-      <h4>Schema:</h4>
       <?php
       if(isset($_GET['schema'])){
           $tabla = $_GET['schema'];
-          $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
+          $cons= mysqli_connect("localhost", "root","597153","big_data") or die(mysql_error());
           $showsql = "show columns from $tabla;";
           $show = mysqli_query($cons,$showsql);
           if (!$show) {
             die('Could not load data from file into table: ' .mysqli_error($cons));
           }
           echo "<table class='table table-bordered'>
+          <caption>Schema</caption>
         <tr>
           <th>Campos de <u>$tabla</u></th>
           <th>Tipo</u></th>
@@ -75,6 +78,7 @@ if(isset($_GET['eliminar'])){
             }
       echo "</table>";
         }
+        $cons->close();
       ?>
     </div>
     </div>
@@ -197,7 +201,7 @@ if(isset($_GET['eliminar'])){
         <div class="form-group">
               <label for="password" class="control-label ">Contraseña</label>
       		<div class="">
-              <input type="password" class="form-control" name="password" id="password" placeholder="" value="europa1935" required="true">
+              <input type="password" class="form-control" name="password" id="password" placeholder="" value="597153" required="true">
       		</div>
           </div>
         <div class="form-group">
@@ -324,6 +328,7 @@ if (!$loaddata) {
 }
 $result2=mysqli_query($cons,"select count(*) count from $table");
 $r2=mysqli_fetch_array($result2);
+$cons->close();
 $count2=(int)$r2['count'];
 
 $count=$count2-$count1;
