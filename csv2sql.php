@@ -1,4 +1,20 @@
 <?php
+session_start();
+include_once "includes/key.php";
+##LOGOUT
+if(isset($_POST['logout'])){
+    session_destroy();
+    echo "<script language='javascript'>window.location='index.php'</script>";
+}
+##LOGIN
+if(isset($_SESSION["myusername"])){
+    #echo "Inicio de sessión correcto.";
+}
+else {
+    header('location:index.php');
+    die;
+}
+##BORRAR FICHEROS
 if(isset($_GET['eliminar'])){
     $directorio = realpath(dirname(getcwd()))."/php_server/csv/";
     $archivo = $_GET['eliminar'];
@@ -11,7 +27,7 @@ if(isset($_GET['eliminar'])){
 }
 if(isset($_GET['drop'])){
   $tabla = $_GET['drop'];
-  $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
+  $cons= mysqli_connect($host, $username,$password,$db_name) or die(mysql_error());
   $dropSQL = "drop table $tabla;";
   $drop = mysqli_query($cons,$dropSQL);
   if (!$drop) {
@@ -24,7 +40,7 @@ $cons->close();
 }
 if(isset($_GET['truncate'])){
   $tabla = $_GET['truncate'];
-  $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
+  $cons= mysqli_connect($host, $username,$password,$db_name) or die(mysql_error());
   $truncateSQL = "truncate $tabla;";
   $trunc = mysqli_query($cons,$truncateSQL);
   if (!$trunc) {
@@ -46,15 +62,21 @@ $cons->close();
 <div class="container">
   <div class="row">
     <h1> SCRIPT CSV a Mysql </h1>
+    <form action="<?php echo $_SERVER['PHP_SELF']; ?>"
+                      method="POST"
+                      enctype="multipart/form-data">
+    <div style="float:right" style="float:right"><input type="submit" name="logout" value="LogOut"/>
+    </form>
+    <h3><a href="csv2sql.php">Re Cargar</a></h3>
     <p> PHP para importar archivos CSV a MySql</p>
     <div class="col-md-12" style="border: 1px solid black">
     <div class="col-md-12">
       <h4>Esta sección es solo informativa, despliega los campos de las tablas en la BBDD big_table.</h4>
-      <a href="csv2sql.php">Re Cargar</a>
+
     </div>
     <div class="col-md-4">
       <?php
-      $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
+      $cons= mysqli_connect($host, $username,$password,$db_name) or die(mysql_error());
       $showtables = "show tables";
       $showt = mysqli_query($cons,$showtables);
       if (!$showt) {
@@ -66,19 +88,21 @@ $cons->close();
               <th>Tablas en big_data:</th>
             </tr>";
       while ($row = $showt->fetch_assoc()) {
-            $tibd = $row['Tables_in_big_data'];
-            $count = mysqli_query($cons, "select count(*) from $tibd;");
-            $count = $count->fetch_assoc();
-            $count = $count['count(*)'];
-            echo "<tr> <td>";
-            echo "<a class='btn btn-danger' href='".$_SERVER['PHP_SELF']."?truncate=".$tibd."'>V</a>";
-            echo " - ";
-            echo "<a class='btn btn-danger' href='".$_SERVER['PHP_SELF']."?drop=".$tibd."'>E</a>";
-            echo "</td>";
-            echo "<td>";
-            echo "<a href='".$_SERVER['PHP_SELF']."?schema=".$tibd."'>$tibd ($count regs.)</a>";
-            echo "</td> </tr>";
+        $tibd = $row['Tables_in_big_data'];
+        if ($tibd != "members") {
+          $count = mysqli_query($cons, "select count(*) from $tibd;");
+          $count = $count->fetch_assoc();
+          $count = $count['count(*)'];
+          echo "<tr> <td>";
+          echo "<a class='btn btn-danger' href='".$_SERVER['PHP_SELF']."?truncate=".$tibd."'>V</a>";
+          echo " - ";
+          echo "<a class='btn btn-danger' href='".$_SERVER['PHP_SELF']."?drop=".$tibd."'>E</a>";
+          echo "</td>";
+          echo "<td>";
+          echo "<a href='".$_SERVER['PHP_SELF']."?schema=".$tibd."'>$tibd ($count regs.)</a>";
+          echo "</td> </tr>";
         }
+      }
         echo "</table>";
         $cons->close();
      ?>
@@ -87,7 +111,7 @@ $cons->close();
       <?php
       if(isset($_GET['schema'])){
           $tabla = $_GET['schema'];
-          $cons= mysqli_connect("localhost", "root","europa1935","big_data") or die(mysql_error());
+          $cons= mysqli_connect($host, $username,$password,$db_name) or die(mysql_error());
           $showsql = "show columns from $tabla;";
           $show = mysqli_query($cons,$showsql);
           if (!$show) {
@@ -234,7 +258,7 @@ $cons->close();
         <div class="form-group">
               <label for="password" class="control-label ">Contraseña</label>
       		<div class="">
-              <input type="password" class="form-control" name="password" id="password" placeholder="" value="europa1935" required="true">
+              <input type="password" class="form-control" name="password" id="password" placeholder="" value="" required="true">
       		</div>
           </div>
         <div class="form-group">
@@ -333,7 +357,6 @@ $count1=(int)$r1['count'];
 
 $sql2 = "LOAD DATA LOCAL INFILE 'csv/".$file. "'
       INTO TABLE `".$table."`
-      CHARACTER SET UTF8
       FIELDS TERMINATED by '$separador'
       ENCLOSED BY '\"'".
       ($header == "si" ? '
