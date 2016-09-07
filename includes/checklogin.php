@@ -11,7 +11,7 @@ $myusername = stripslashes($myusername);
 $mypassword = stripslashes($mypassword);
 $myusername = mysqli_real_escape_string($con, $myusername);
 $mypassword = mysqli_real_escape_string($con, $mypassword);
-$sql="select * from $tbl_name where myusername='$myusername' and mypassword='$mypassword';";
+$sql="select * from $tbl_members where myusername='$myusername' and mypassword='$mypassword';";
 $result=mysqli_query($con, $sql);
 // Mysql_num_row is counting table row
 $count=mysqli_num_rows($result);

@@ -25,6 +25,7 @@ if(isset($_GET['eliminar'])){
       echo "Ocurrio un error al borrar el archivo";
     }
 }
+##DROP TABLE
 if(isset($_GET['drop'])){
   $tabla = $_GET['drop'];
   $cons= mysqli_connect($host, $username,$password,$db_name) or die(mysql_error());
@@ -38,6 +39,7 @@ if(isset($_GET['drop'])){
   }
 $cons->close();
 }
+##TRUNCATE TABLE
 if(isset($_GET['truncate'])){
   $tabla = $_GET['truncate'];
   $cons= mysqli_connect($host, $username,$password,$db_name) or die(mysql_error());
@@ -55,7 +57,8 @@ $cons->close();
 <html>
 <head>
 <title>CSVaMySql</title>
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<script src="js/jquery.min.js"></script>
 </head>
 <body>
 <br>
@@ -94,9 +97,9 @@ $cons->close();
           $count = $count->fetch_assoc();
           $count = $count['count(*)'];
           echo "<tr> <td>";
-          echo "<a class='btn btn-danger' href='".$_SERVER['PHP_SELF']."?truncate=".$tibd."'>V</a>";
+          echo "<a class='btn btn-danger ' href='".$_SERVER['PHP_SELF']."?truncate=".$tibd."'>V</a>";
           echo " - ";
-          echo "<a class='btn btn-danger' href='".$_SERVER['PHP_SELF']."?drop=".$tibd."'>E</a>";
+          echo "<a class='btn btn-danger ' href='".$_SERVER['PHP_SELF']."?drop=".$tibd."'>E</a>";
           echo "</td>";
           echo "<td>";
           echo "<a href='".$_SERVER['PHP_SELF']."?schema=".$tibd."'>$tibd ($count regs.)</a>";
@@ -123,8 +126,10 @@ $cons->close();
           <th>Campos de <u>$tabla</u></th>
           <th>Tipo</u></th>
         </tr>";
+        $campos = [];
           while ($row = $show->fetch_assoc()) {
               if ($row['Field'] != "id") {
+                array_push($campos, $row['Field']);
                 echo "<tr>
                 <td>";
                 echo "<b>".$row['Field']."</b>";
@@ -134,8 +139,10 @@ $cons->close();
               }
             }
       echo "</table>";
+      include_once "html/form_extraer.php";
         }
       ?>
+
     </div>
     </div>
 
@@ -287,7 +294,7 @@ $cons->close();
       		<div class="">
               <input type="hidden" class="form-control" name="db" id="db" placeholder="" value="big_data" required="true">
       		</div>
-          </div>
+        </div>
 
 </div>
   <div class="form-group">
